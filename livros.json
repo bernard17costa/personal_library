@@ -1,28 +1,29 @@
 [
-  {
-    "isbn": "9788535925470",
-    "titulo": "",
-    "titulo original": "",
-    "autor": "",
-    "tradutor": "",
-    "editora": "",
-    "publicacao": "",
-    "impressao": "",
-    "edicao": "",
-    "lingua": "",
-    "emprestado": ""
-  },
-  {
-    "isbn": "9788535928518",
-    "titulo": "",
-    "titulo original": "",
-    "autor": "",
-    "tradutor": "",
-    "editora": "",
-    "publicacao": "",
-    "impressao": "",
-    "edicao": "",
-    "lingua": "",
-    "emprestado": ""
-  }
+    {
+        "isbn": "9788535925470",
+        "titulo": "Sejamos Todos Feministas",
+        "titulo original": "",
+        "autor": "Chimamanda Ngozi Adichie",
+        "tradutor": "",
+        "editora": "Companhia das Letras, COMPANHIA DAS LETRAS - GRUPO CIA DAS LETRAS",
+        "publicacao": "Feb 03, 2015",
+        "impressao": "",
+        "edicao": "",
+        "lingua": "",
+        "emprestado": "",
+        "capa": "https://covers.openlibrary.org/b/id/13222075-M.jpg"
+    },
+    {
+        "isbn": "9788535928518",
+        "titulo": "",
+        "titulo original": "",
+        "autor": "",
+        "tradutor": "",
+        "editora": "",
+        "publicacao": "",
+        "impressao": "",
+        "edicao": "",
+        "lingua": "",
+        "emprestado": ""
+    }
 ]
