@@ -4,6 +4,28 @@ import requests
 ARQUIVO_JSON = "livros.json"
 
 
+def formatar_multiplos_nomes(string_nomes):
+  if not string_nomes:
+    return ""
+
+  # Divide caso venha separado por vírgula ou " e "
+  nomes = string_nomes.replace(" e ", ", ").split(",")
+  nomes_limpos = [n.strip() for n in nomes if n.strip()]
+
+  formatados = []
+  for nome_atual in nomes_limpos:
+    partes = nome_atual.split()
+
+    if len(partes) > 1 and "," not in nome_atual:
+      sobrenome = partes[-1]
+      nome = " ".join(partes[:-1])
+      formatados.append(f"{sobrenome}, {nome}")
+    else:
+      formatados.append(nome_atual)
+
+  return "; ".join(formatados)
+
+
 def buscar_google_books(isbn_limpo):
   url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn_limpo}"
   try:
@@ -12,9 +34,10 @@ def buscar_google_books(isbn_limpo):
       data = response.json()
       if "items" in data:
         info = data["items"][0]["volumeInfo"]
+        autor_bruto = ", ".join(info.get("authors", []))
         return {
             "titulo": info.get("title", ""),
-            "autor": ", ".join(info.get("authors", [])),
+            "autor": formatar_multiplos_nomes(autor_bruto),
             "editora": info.get("publisher", ""),
             "publicacao": info.get("publishedDate", ""),
             "lingua": info.get("language", "").upper(),
@@ -34,14 +57,15 @@ def buscar_open_library(isbn_limpo):
       chave = f"ISBN:{isbn_limpo}"
       if chave in data:
         info = data[chave]
-        autores = ", ".join([a.get("name", "") for a in info.get("authors", [])])
+        autores_lista = [a.get("name", "") for a in info.get("authors", [])]
+        autor_bruto = ", ".join(autores_lista)
         editoras = ", ".join(
             [e.get("name", "") for e in info.get("publishers", [])]
         )
         capa = info.get("cover", {}).get("medium", "")
         return {
             "titulo": info.get("title", ""),
-            "autor": autores,
+            "autor": formatar_multiplos_nomes(autor_bruto),
             "editora": editoras,
             "publicacao": info.get("publish_date", ""),
             "lingua": "",
@@ -55,12 +79,10 @@ def buscar_open_library(isbn_limpo):
 def buscar_dados_isbn(isbn):
   isbn_limpo = isbn.replace("-", "").strip()
 
-  # 1. Tenta o Google Books
   dados = buscar_google_books(isbn_limpo)
   if dados and (dados["titulo"] or dados["capa"]):
     return dados
 
-  # 2. Se não achar, tenta a Open Library
   dados_ol = buscar_open_library(isbn_limpo)
   if dados_ol and (dados_ol["titulo"] or dados_ol["capa"]):
     return dados_ol
@@ -81,7 +103,6 @@ def main():
   for livro in livros:
     isbn = livro.get("isbn")
     if isbn:
-      # Verifica se o título está vazio OU se a capa está faltando/vazia
       titulo_vazio = not str(livro.get("titulo", "")).strip()
       capa_vazia = not str(livro.get("capa", "")).strip()
 
@@ -90,36 +111,28 @@ def main():
         dados = buscar_dados_isbn(isbn)
 
         if dados:
-          # Se o título estava vazio, preenche. Se já tinha, mantém o que estava.
           if titulo_vazio and dados["titulo"]:
             livro["titulo"] = dados["titulo"]
 
-          # Se o autor estava vazio, preenche.
           if not str(livro.get("autor", "")).strip() and dados["autor"]:
             livro["autor"] = dados["autor"]
 
-          # Se a editora estava vazia, preenche.
           if not str(livro.get("editora", "")).strip() and dados["editora"]:
             livro["editora"] = dados["editora"]
 
-          # Se a publicação estava vazia, preenche.
           if (
               not str(livro.get("publicacao", "")).strip()
               and dados["publicacao"]
           ):
             livro["publicacao"] = dados["publicacao"]
 
-          # Se a língua estava vazia, preenche.
           if not str(livro.get("lingua", "")).strip() and dados.get("lingua"):
             livro["lingua"] = dados["lingua"]
 
-          # ATUALIZA A CAPA SEMPRE QUE ENCONTRAR UMA NOVA NA API
           if dados.get("capa"):
             livro["capa"] = dados["capa"]
 
-          # Garante a integridade dos campos manuais
           livro["titulo original"] = livro.get("titulo original", "")
-          livro["tradutor"] = livro.get("tradutor", "")
           livro["impressao"] = livro.get("impressao", "")
           livro["edicao"] = livro.get("edicao", "")
           livro["emprestado"] = livro.get("emprestado", "")
@@ -129,12 +142,24 @@ def main():
         else:
           print(f"-> Aviso: Nenhuma API encontrou dados para o ISBN {isbn}.")
 
+      # Formata o autor para o padrão "Sobrenome, Nome" caso ainda não esteja
+      autor_atual = str(livro.get("autor", "")).strip()
+      if autor_atual and "," not in autor_atual:
+        livro["autor"] = formatar_multiplos_nomes(autor_atual)
+        atualizado = True
+
+      # Formata o tradutor para o padrão "Sobrenome, Nome" caso esteja preenchido e fora do padrão
+      tradutor_atual = str(livro.get("tradutor", "")).strip()
+      if tradutor_atual and "," not in tradutor_atual:
+        livro["tradutor"] = formatar_multiplos_nomes(tradutor_atual)
+        atualizado = True
+
   if atualizado:
     with open(ARQUIVO_JSON, "w", encoding="utf-8") as f:
       json.dump(livros, f, ensure_ascii=False, indent=4)
-    print("Base de dados e capas atualizadas com sucesso!")
+    print("Base de dados, autores e tradutores formatados com sucesso!")
   else:
-    print("Nenhum livro novo precisou de atualização.")
+    print("Nenhum livro precisou de atualização.")
 
 
 if __name__ == "__main__":
