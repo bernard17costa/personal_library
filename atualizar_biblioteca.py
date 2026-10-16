@@ -17,10 +17,18 @@ def buscar_dados_isbn(isbn):
       if "items" in data:
         info = data["items"][0]["volumeInfo"]
         return {
-            "titulo": info.get("title", "Desconhecido"),
-            "autores": ", ".join(info.get("authors", ["Desconhecido"])),
-            "editora": info.get("publisher", "Não informada"),
-            "ano": info.get("publishedDate", "Não informado")[:4],  # Pega só o ano
+            "titulo": info.get("title", ""),
+            "titulo original": "",  # A API geralmente não fornece o título original separado
+            "autor": ", ".join(info.get("authors", [])),
+            "tradutor": "",  # APIs comuns não costumam estruturar tradutores
+            "editora": info.get("publisher", ""),
+            "publicacao": info.get(
+                "publishedDate", ""
+            ),  # Geralmente vem como "YYYY" ou "YYYY-MM-DD"
+            "impressao": "",  # Campo específico de impressão física
+            "edicao": "",  # A API raramente traz o número da edição de forma padronizada
+            "lingua": info.get("language", "").upper(),
+            "emprestado": "",  # Campo de controle pessoal
             "capa": info.get("imageLinks", {}).get("thumbnail", ""),
         }
   except Exception as e:
@@ -30,8 +38,12 @@ def buscar_dados_isbn(isbn):
 
 
 def main():
-  with open(ARQUIVO_JSON, "r", encoding="utf-8") as f:
-    livros = json.load(f)
+  try:
+    with open(ARQUIVO_JSON, "r", encoding="utf-8") as f:
+      livros = json.load(f)
+  except FileNotFoundError:
+    print(f"Arquivo {ARQUIVO_JSON} não encontrado.")
+    return
 
   atualizado = False
 
@@ -41,7 +53,22 @@ def main():
       print(f"Buscando dados para o ISBN: {livro['isbn']}...")
       dados = buscar_dados_isbn(livro["isbn"])
       if dados:
-        livro.update(dados)
+        # Atualiza apenas os campos vazios ou preenche a estrutura nova
+        livro["titulo"] = dados["titulo"]
+        livro["autor"] = dados["autor"]
+        livro["editora"] = dados["editora"]
+        livro["publicacao"] = dados["publicacao"]
+        livro["lingua"] = dados["lingua"]
+        # Mantém os campos manuais em branco caso já não estejam preenchidos
+        livro["titulo_original"] = livro.get("titulo original", "")
+        livro["tradutor"] = livro.get("tradutor", "")
+        livro["impressao"] = livro.get("impressao", "")
+        livro["edicao"] = livro.get("edicao", "")
+        livro["emprestado"] = livro.get("emprestado", "")
+
+        # Se você quiser salvar a capa também, certifique-se de que o seu JSON suporta esse campo
+        livro["capa"] = dados["capa"]
+
         atualizado = True
 
   if atualizado:
