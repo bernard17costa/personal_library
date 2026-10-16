@@ -1,12 +1,10 @@
 import json
 import requests
 
-# Nome do arquivo da base de dados
 ARQUIVO_JSON = "livros.json"
 
 
 def buscar_dados_isbn(isbn):
-  # Limpa traços ou espaços do ISBN
   isbn_limpo = isbn.replace("-", "").strip()
   url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn_limpo}"
 
@@ -18,17 +16,15 @@ def buscar_dados_isbn(isbn):
         info = data["items"][0]["volumeInfo"]
         return {
             "titulo": info.get("title", ""),
-            "titulo original": "",  # A API geralmente não fornece o título original separado
+            "titulo original": "",
             "autor": ", ".join(info.get("authors", [])),
-            "tradutor": "",  # APIs comuns não costumam estruturar tradutores
+            "tradutor": "",
             "editora": info.get("publisher", ""),
-            "publicacao": info.get(
-                "publishedDate", ""
-            ),  # Geralmente vem como "YYYY" ou "YYYY-MM-DD"
-            "impressao": "",  # Campo específico de impressão física
-            "edicao": "",  # A API raramente traz o número da edição de forma padronizada
+            "publicacao": info.get("publishedDate", ""),
+            "impressao": "",
+            "edicao": "",
             "lingua": info.get("language", "").upper(),
-            "emprestado": "",  # Campo de controle pessoal
+            "emprestado": "",
             "capa": info.get("imageLinks", {}).get("thumbnail", ""),
         }
   except Exception as e:
@@ -48,28 +44,25 @@ def main():
   atualizado = False
 
   for livro in livros:
-    # Se o livro tem ISBN mas o título está vazio, busca os dados
-    if livro.get("isbn") and not livro.get("titulo"):
+    # Verifica se o título está vazio (considerando espaços em branco)
+    if livro.get("isbn") and not str(livro.get("titulo", "")).strip():
       print(f"Buscando dados para o ISBN: {livro['isbn']}...")
       dados = buscar_dados_isbn(livro["isbn"])
       if dados:
-        # Atualiza apenas os campos vazios ou preenche a estrutura nova
         livro["titulo"] = dados["titulo"]
         livro["autor"] = dados["autor"]
         livro["editora"] = dados["editora"]
         livro["publicacao"] = dados["publicacao"]
         livro["lingua"] = dados["lingua"]
-        # Mantém os campos manuais em branco caso já não estejam preenchidos
-        livro["titulo_original"] = livro.get("titulo original", "")
+        livro["titulo original"] = livro.get("titulo original", "")
         livro["tradutor"] = livro.get("tradutor", "")
         livro["impressao"] = livro.get("impressao", "")
         livro["edicao"] = livro.get("edicao", "")
         livro["emprestado"] = livro.get("emprestado", "")
-
-        # Se você quiser salvar a capa também, certifique-se de que o seu JSON suporta esse campo
         livro["capa"] = dados["capa"]
-
         atualizado = True
+      else:
+        print(f"Nenhum dado encontrado na API para o ISBN {livro['isbn']}.")
 
   if atualizado:
     with open(ARQUIVO_JSON, "w", encoding="utf-8") as f:
