@@ -44,7 +44,7 @@ def buscar_open_library(isbn_limpo):
             "autor": autores,
             "editora": editoras,
             "publicacao": info.get("publish_date", ""),
-            "lingua": "",  # Open Library dados estruturados variam muito para idioma
+            "lingua": "",
             "capa": capa,
         }
   except Exception:
@@ -57,12 +57,12 @@ def buscar_dados_isbn(isbn):
 
   # 1. Tenta o Google Books
   dados = buscar_google_books(isbn_limpo)
-  if dados and dados["titulo"]:
+  if dados and (dados["titulo"] or dados["capa"]):
     return dados
 
   # 2. Se não achar, tenta a Open Library
   dados_ol = buscar_open_library(isbn_limpo)
-  if dados_ol and dados_ol["titulo"]:
+  if dados_ol and (dados_ol["titulo"] or dados_ol["capa"]):
     return dados_ol
 
   return None
@@ -79,39 +79,62 @@ def main():
   atualizado = False
 
   for livro in livros:
-    if livro.get("isbn") and not str(livro.get("titulo", "")).strip():
-      print(f"Buscando dados para o ISBN: {livro['isbn']}...")
-      dados = buscar_dados_isbn(livro["isbn"])
-      if dados:
-        livro["titulo"] = dados["titulo"]
-        livro["autor"] = dados["autor"]
-        livro["editora"] = dados["editora"]
-        livro["publicacao"] = dados["publicacao"]
-        if dados.get("lingua"):
-          livro["lingua"] = dados["lingua"]
-        livro["capa"] = dados["capa"]
+    isbn = livro.get("isbn")
+    if isbn:
+      # Verifica se o título está vazio OU se a capa está faltando/vazia
+      titulo_vazio = not str(livro.get("titulo", "")).strip()
+      capa_vazia = not str(livro.get("capa", "")).strip()
 
-        # Garante a existência dos campos opcionais
-        livro["titulo original"] = livro.get("titulo original", "")
-        livro["tradutor"] = livro.get("tradutor", "")
-        livro["impressao"] = livro.get("impressao", "")
-        livro["edicao"] = livro.get("edicao", "")
-        livro["emprestado"] = livro.get("emprestado", "")
+      if titulo_vazio or capa_vazia:
+        print(f"Buscando dados/capa para o ISBN: {isbn}...")
+        dados = buscar_dados_isbn(isbn)
 
-        atualizado = True
-        print(f"-> Sucesso encontrado para: {dados['titulo']}")
-      else:
-        print(
-            f"-> Aviso: Nenhuma API pública encontrou o ISBN {livro['isbn']}."
-            " Você pode preencher manualmente no JSON se preferir."
-        )
+        if dados:
+          # Se o título estava vazio, preenche. Se já tinha, mantém o que estava.
+          if titulo_vazio and dados["titulo"]:
+            livro["titulo"] = dados["titulo"]
+
+          # Se o autor estava vazio, preenche.
+          if not str(livro.get("autor", "")).strip() and dados["autor"]:
+            livro["autor"] = dados["autor"]
+
+          # Se a editora estava vazia, preenche.
+          if not str(livro.get("editora", "")).strip() and dados["editora"]:
+            livro["editora"] = dados["editora"]
+
+          # Se a publicação estava vazia, preenche.
+          if (
+              not str(livro.get("publicacao", "")).strip()
+              and dados["publicacao"]
+          ):
+            livro["publicacao"] = dados["publicacao"]
+
+          # Se a língua estava vazia, preenche.
+          if not str(livro.get("lingua", "")).strip() and dados.get("lingua"):
+            livro["lingua"] = dados["lingua"]
+
+          # ATUALIZA A CAPA SEMPRE QUE ENCONTRAR UMA NOVA NA API
+          if dados.get("capa"):
+            livro["capa"] = dados["capa"]
+
+          # Garante a integridade dos campos manuais
+          livro["titulo original"] = livro.get("titulo original", "")
+          livro["tradutor"] = livro.get("tradutor", "")
+          livro["impressao"] = livro.get("impressao", "")
+          livro["edicao"] = livro.get("edicao", "")
+          livro["emprestado"] = livro.get("emprestado", "")
+
+          atualizado = True
+          print(f"-> Atualizado com sucesso para o ISBN: {isbn}")
+        else:
+          print(f"-> Aviso: Nenhuma API encontrou dados para o ISBN {isbn}.")
 
   if atualizado:
     with open(ARQUIVO_JSON, "w", encoding="utf-8") as f:
       json.dump(livros, f, ensure_ascii=False, indent=4)
-    print("Base de dados atualizada com sucesso!")
+    print("Base de dados e capas atualizadas com sucesso!")
   else:
-    print("Nenhum livro novo para atualizar.")
+    print("Nenhum livro novo precisou de atualização.")
 
 
 if __name__ == "__main__":
