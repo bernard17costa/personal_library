@@ -1,26 +1,26 @@
 [
     {
         "isbn": "9788522002689",
-        "titulo": "",
+        "titulo": "Moratória, A",
         "titulo original": "",
         "autor": "",
         "tradutor": "",
-        "editora": "",
-        "publicacao": "",
+        "editora": "Lê",
+        "publicacao": "1995",
         "impressao": "",
         "edicao": "",
         "lingua": "",
         "emprestado": "",
-        "capa": ""
+        "capa": "https://covers.openlibrary.org/b/id/5279348-M.jpg"
     },
     {
         "isbn": "8501156027",
-        "titulo": "",
+        "titulo": "A Caça ao Outubro Vermelho",
         "titulo original": "",
-        "autor": "",
+        "autor": "Clancy, Tom",
         "tradutor": "",
-        "editora": "",
-        "publicacao": "",
+        "editora": "Record",
+        "publicacao": "1996-01-01",
         "impressao": "",
         "edicao": "",
         "lingua": "",
@@ -781,7 +781,7 @@
         "edicao": "1",
         "lingua": "Português",
         "emprestado": "",
-        "capa": ""
+        "capa": "https://covers.openlibrary.org/b/id/12287887-M.jpg"
     },
     {
         "isbn": "9788520934234",
@@ -1117,7 +1117,7 @@
         "edicao": "1",
         "lingua": "Português",
         "emprestado": "",
-        "capa": ""
+        "capa": "https://covers.openlibrary.org/b/id/12060983-M.jpg"
     },
     {
         "isbn": "9788575290231",
@@ -6479,7 +6479,7 @@
         "edicao": "--",
         "lingua": "Português",
         "emprestado": "",
-        "capa": ""
+        "capa": "https://covers.openlibrary.org/b/id/15246878-M.jpg"
     },
     {
         "isbn": "9789505577659",
@@ -8523,7 +8523,7 @@
         "edicao": "32",
         "lingua": "Português",
         "emprestado": "",
-        "capa": ""
+        "capa": "https://covers.openlibrary.org/b/id/4314785-M.jpg"
     },
     {
         "isbn": "9788449325014",
@@ -12107,7 +12107,7 @@
         "edicao": "1",
         "lingua": "English",
         "emprestado": "",
-        "capa": ""
+        "capa": "https://covers.openlibrary.org/b/id/6575684-M.jpg"
     },
     {
         "isbn": "9788571109704",
@@ -12863,7 +12863,7 @@
         "edicao": "1",
         "lingua": "Português",
         "emprestado": "",
-        "capa": ""
+        "capa": "https://covers.openlibrary.org/b/id/5372272-M.jpg"
     },
     {
         "isbn": "9788571644953",
@@ -15467,7 +15467,7 @@
         "edicao": "3",
         "lingua": "English",
         "emprestado": "",
-        "capa": ""
+        "capa": "https://covers.openlibrary.org/b/id/15226150-M.jpg"
     },
     {
         "isbn": "9788520006115",
