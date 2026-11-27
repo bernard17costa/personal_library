@@ -99,7 +99,7 @@ def buscar_em_apis(codigo_isbn):
 
 
 def buscar_dados_isbn(isbn):
-  isbn_limpo = "".join(ch for ch in str(isbn) if ch.isalnum()).strip()
+  isbn_limpo = "".join(ch for ch in str(isbn) if ch.isalnum()).strip().upper()
   if not isbn_limpo or isbn_limpo == "--":
     return None
 
@@ -119,6 +119,36 @@ def buscar_dados_isbn(isbn):
   return None
 
 
+def verificar_isbns_duplicados(livros):
+  """Agrupa ocorrências de ISBNs válidos e emite aviso quando houver duplicidade."""
+  ocorrencias = {}
+
+  for idx, livro in enumerate(livros, start=1):
+    isbn_raw = str(livro.get("isbn", "")).strip()
+    if not isbn_raw or isbn_raw == "--":
+      continue
+
+    isbn_limpo = "".join(ch for ch in isbn_raw if ch.isalnum()).upper()
+    if not isbn_limpo:
+      continue
+
+    titulo = str(livro.get("titulo", "")).strip() or "(sem título)"
+    ocorrencias.setdefault(isbn_limpo, []).append((idx, isbn_raw, titulo))
+
+  duplicados = {k: v for k, v in ocorrencias.items() if len(v) > 1}
+  if duplicados:
+    print(
+        f"⚠️ Aviso: {len(duplicados)} ISBN(s) duplicado(s) encontrado(s) em"
+        f" {ARQUIVO_JSON}:"
+    )
+    for isbn_key, itens in duplicados.items():
+      locais = ", ".join(
+          f"item #{idx} ['{titulo}' | ISBN: {raw}]"
+          for idx, raw, titulo in itens
+      )
+      print(f"   - {isbn_key}: {len(itens)} ocorrências -> {locais}")
+
+
 def main():
   try:
     with open(ARQUIVO_JSON, "r", encoding="utf-8") as f:
@@ -134,11 +164,13 @@ def main():
     print(f"Estrutura inválida em {ARQUIVO_JSON}: esperado um array JSON.")
     return
 
+  verificar_isbns_duplicados(livros)
+
   atualizado = False
 
   for livro in livros:
     isbn_raw = str(livro.get("isbn", "")).strip()
-    isbn_limpo = "".join(ch for ch in isbn_raw if ch.isalnum())
+    isbn_limpo = "".join(ch for ch in isbn_raw if ch.isalnum()).upper()
 
     if not isbn_limpo or isbn_raw == "--":
       continue
@@ -177,7 +209,13 @@ def main():
           livro["capa"] = dados["capa"]
           atualizado = True
 
-        for campo in ("titulo original", "tradutor", "impressao", "edicao", "emprestado"):
+        for campo in (
+            "titulo original",
+            "tradutor",
+            "impressao",
+            "edicao",
+            "emprestado",
+        ):
           if campo not in livro:
             livro[campo] = ""
             atualizado = True
