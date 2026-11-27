@@ -1,0 +1,15 @@
+    {
+        "isbn": "",
+        "titulo": "",
+        "titulo original": "",
+        "autor": "",
+        "tradutor": "",
+        "editora": "",
+        "publicacao": "",
+        "impressao": "",
+        "edicao": "",
+        "lingua": "",
+        "emprestado": "",
+        "capa": ""
+    },
+    
