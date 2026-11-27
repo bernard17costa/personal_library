@@ -1,6 +1,6 @@
 [
     {
-        "isbn": "9788536311197",
+        "isbn": "--",
         "titulo": "Implantação de elétrodos para o estudo eletrofisiológico do ciclo vigília-sono do rato",
         "titulo original": "Implantação de elétrodos para o estudo eletrofisiológico do ciclo vigília-sono do rato",
         "autor": "Andersen, Monica Levy; Valle, Angela Cristina do; Timo-Iaria, Cesar; Tufik, Sergio ",
@@ -170,13 +170,13 @@
     {
         "isbn": "9780412055515",
         "titulo": "Markov chain Monte Carlo in practice",
-        "titulo original": "",
-        "autor": "Richardson, S.",
-        "tradutor": "",
+        "titulo original": "Markov chain Monte Carlo in practice",
+        "autor": "Gilks, W.R.; Richardson, S.; Spiegelhalter, David ",
+        "tradutor": "--",
         "editora": "Chapman & Hall",
         "publicacao": "1996",
-        "impressao": "",
-        "edicao": "",
+        "impressao": "1996",
+        "edicao": "1",
         "lingua": "English",
         "emprestado": "",
         "capa": "https://covers.openlibrary.org/b/id/8691284-M.jpg"
